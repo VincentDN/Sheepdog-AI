@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --field: #16201C;
+    --field-2: #1F2B26;
+    --fence: #384942;
+    --wool: #E9E5DA;
+    --muted: #93A69D;
+    --ochre: #C98B2E;
+    --alarm: #C4553D;
+    --graze: #82A98D;
+  }
+  * { box-sizing: border-box; }
+  body {
+    width: 300px;
+    margin: 0;
+    padding: 18px 16px 16px;
+    background: var(--field);
+    color: var(--wool);
+    font: 400 14px/1.5 "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  }
+  h1 {
+    margin: 0 0 2px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .state {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--alarm);
+    flex: none;
+  }
+  .dot.on { background: var(--graze); }
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  input {
+    width: 100%;
+    padding: 9px 10px;
+    margin-bottom: 14px;
+    border: 1px solid var(--fence);
+    border-radius: 3px;
+    background: var(--field-2);
+    color: var(--wool);
+    font: 400 13px/1.4 "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  input:focus-visible {
+    outline: 2px solid var(--ochre);
+    outline-offset: 1px;
+  }
+  button {
+    width: 100%;
+    padding: 10px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ochre);
+    color: #17120A;
+    font: 600 14px/1 "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    cursor: pointer;
+  }
+  button:hover { background: #D89C3D; }
+  button:focus-visible { outline: 2px solid var(--wool); outline-offset: 2px; }
+  .hint {
+    margin: 14px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+  <h1>Sheepdog</h1>
+  <div class="state"><span class="dot" id="dot"></span><span id="stateText">Checking…</span></div>
+
+  <label for="service">Service address</label>
+  <input id="service" spellcheck="false" placeholder="localhost:8787">
+
+  <label for="token">Access code</label>
+  <input id="token" spellcheck="false" placeholder="Paste from the service window">
+
+  <button id="save">Save and connect</button>
+
+  <p class="hint">The access code is printed in the Sheepdog service window when it starts, and shown on the control panel.</p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

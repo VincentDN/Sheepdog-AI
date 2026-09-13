@@ -1,0 +1,15 @@
+node_modules/
+
+# Local runtime data, in case SHEEPDOG_DATA is pointed at the repo
+config.json
+config.json.tmp
+config.json.broken-*
+log.json
+
+# OS and editor noise
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+*.log

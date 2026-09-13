@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16201C">
+<title>Sheepdog</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="gate" class="gate" hidden>
+  <div class="gate-card">
+    <h1 class="wordmark">Sheepdog</h1>
+    <p class="gate-copy">Paste the access code from the service window to take control.</p>
+    <input id="gateToken" class="field mono" placeholder="Access code" spellcheck="false" autocomplete="off">
+    <button id="gateGo" class="btn btn-primary">Unlock</button>
+    <p id="gateError" class="gate-error" hidden></p>
+  </div>
+</div>
+
+<main id="app" class="app" hidden>
+
+  <header class="head">
+    <div class="head-top">
+      <h1 class="wordmark">Sheepdog</h1>
+      <button id="killSwitch" class="btn btn-kill">Stop all</button>
+    </div>
+    <p id="headline" class="headline">Waking up…</p>
+    <p id="linkState" class="linkstate"></p>
+  </header>
+
+  <section class="section" aria-labelledby="flockHeading">
+    <div class="section-head">
+      <h2 id="flockHeading" class="section-title">The flock</h2>
+      <button id="addBtn" class="btn btn-quiet">Add an agent</button>
+    </div>
+    <div id="flock" class="flock"></div>
+    <p id="flockEmpty" class="empty" hidden>
+      Nothing to watch yet. Open a Claude or ChatGPT conversation, then add it here
+      with its tab address and how often you want it nudged.
+    </p>
+  </section>
+
+  <section class="section" aria-labelledby="logHeading">
+    <h2 id="logHeading" class="section-title">Recent activity</h2>
+    <ol id="log" class="log"></ol>
+  </section>
+
+  <footer class="foot">
+    <button id="forgetBtn" class="btn btn-quiet">Forget access code on this device</button>
+  </footer>
+</main>
+
+<template id="rowTpl">
+  <article class="row">
+    <div class="row-main">
+      <div class="row-head">
+        <h3 class="row-name"></h3>
+        <span class="row-platform"></span>
+      </div>
+      <p class="row-state"></p>
+      <div class="tension" aria-hidden="true"><span class="tension-fill"></span></div>
+      <div class="row-actions">
+        <button class="btn btn-quiet act-nudge">Nudge now</button>
+        <button class="btn btn-quiet act-toggle"></button>
+        <button class="btn btn-quiet act-edit">Edit</button>
+      </div>
+    </div>
+    <div class="editor" hidden></div>
+  </article>
+</template>
+
+<script src="app.js"></script>
+</body>
+</html>
