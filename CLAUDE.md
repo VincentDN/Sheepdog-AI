@@ -5,12 +5,40 @@
 Sheepdog types a message into a browser AI chat on a schedule. Three parts that have
 to agree with each other:
 
-- `service/` — Node, one dependency (`ws`). Owns the schedule, hosts the control
-  panel, exposes REST + WebSocket. Entry point `service/src/index.js`.
+- `service/` — Node, two dependencies (`ws`, `discord.js`). Owns the schedule, hosts
+  the control panel, exposes REST + WebSocket, and optionally runs the Discord bot.
+  Entry point `service/src/index.js`.
 - `extension/` — Chrome MV3. Holds a WebSocket to the service, finds the tab, does
   the typing. No build step; load unpacked.
 - `service/public/` — the control panel. Vanilla JS, no framework, no bundler. Also
   the Android app, via PWA install.
+
+## The Discord bot
+
+`service/src/discordBot.js` logs into Discord (via `discord.js`) only if
+`SHEEPDOG_DISCORD_TOKEN` is set — no token, no bot, and everything else in the
+service runs exactly as before. It watches every channel the bot has been added
+to. When a message @mentions the bot, `extractTaskAndImage()` strips the mention,
+pulls out an image (a real attachment first, else the first image-looking URL in
+the text), and `service/src/roadmap.js` appends the rest as a markdown checkbox
+line to that day's `Sheepdog-Roadmap-YYYY-MM-DD.md` under
+`<DATA_DIR>/roadmaps/`, creating the file with a heading on the day's first entry.
+
+Those files are exposed read-only over the existing HTTP API, behind the same
+access token as everything else: `GET /api/roadmap` lists filenames,
+`GET /api/roadmap/latest` and `GET /api/roadmap/<file>` return raw markdown. This
+is the "somewhere the agent can fetch" — a nudged agent that's been told to check
+that URL can read the current roadmap and see what's done.
+
+The nudge message itself needs no code changes to reference the roadmap — a
+flock member's `message` field is already free text, so pointing an agent at the
+roadmap is just a matter of writing that into the message (see README). Don't
+add a "roadmap mode" flag to flock members for this; it doesn't need one.
+
+Discord image attachment URLs carry a signed, expiring `ex=`/`is=`/`hm=` query
+string, so a roadmap entry's image link goes dead after a while. Fine for an
+agent checking in soon after; not a durable archive. Don't try to "fix" this by
+re-hosting images without being asked — it's a deliberate scope cut, not a bug.
 
 There is no build pipeline anywhere. Edit a file, restart the service or reload the
 extension. Keep it that way.

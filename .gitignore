@@ -5,6 +5,7 @@ config.json
 config.json.tmp
 config.json.broken-*
 log.json
+roadmaps/
 
 # OS and editor noise
 Thumbs.db

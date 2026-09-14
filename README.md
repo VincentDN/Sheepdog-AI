@@ -8,13 +8,14 @@ It's a sheepdog rather than a timer because it checks before it acts. If the age
 is still generating, if the page is still moving, or if you have a half-typed draft
 in the box, it holds off and says so in the log.
 
-## The three pieces
+## The pieces
 
 | Piece | Where it runs | What it does |
 | --- | --- | --- |
 | Service | Windows, in the background | Holds the schedule, decides when each agent is due, keeps the log |
 | Extension | Chrome or Edge, same machine | Finds the right tab and does the typing |
 | Control panel | Any browser on your network, including your phone | Add agents, change schedules, nudge on demand, stop everything |
+| Discord bot | Part of the service, optional | Turns `@Sheepdog <task>` in a Discord channel into a roadmap entry |
 
 The control panel is a web app the service hosts. On Android, open it in Chrome and
 choose "Add to Home screen" — it installs as a standalone app with its own icon.
@@ -57,6 +58,71 @@ powershell -ExecutionPolicy Bypass -File windows\install-autostart.ps1
 
 This starts Sheepdog when you sign in and opens its port on your private network so
 your phone can reach it. Undo it with the same command plus `-Remove`.
+
+## Logging tasks from Discord
+
+Add Sheepdog to a Discord server and tag it in any channel it's in — `@Sheepdog
+fix the header bug`, with a screenshot attached if you like — and it writes that
+as a task line onto today's roadmap file. Tag it again for the next task, and
+the next, all day; they pile up in the same file. Ask it to work through them at
+the time your agent's usage limit refreshes, and it can check off what's done
+and pick up where it left off.
+
+**1. Create the bot**
+
+In the [Discord Developer Portal](https://discord.com/developers/applications),
+make a new application, open **Bot**, turn on the **Message Content Intent**,
+and copy the token. Under **OAuth2 → URL Generator**, tick the `bot` scope and
+the `Send Messages` + `Read Message History` permissions, then open the
+generated URL to invite it to your server.
+
+**2. Give the service the token**
+
+Set an environment variable before starting the service, e.g. in
+`windows\start-sheepdog.cmd` or your own shortcut:
+
+```
+set SHEEPDOG_DISCORD_TOKEN=your-bot-token-here
+node src\index.js
+```
+
+Without this variable set, the service runs exactly as before — the Discord
+piece is entirely optional. When it is set, the console prints `Discord:
+connected as <bot name>` once it's logged in.
+
+**3. Tag it to add tasks**
+
+Each mention becomes one line in `<data folder>/roadmaps/Sheepdog-Roadmap-
+<today's date>.md` — a markdown checkbox with who asked and when, plus the
+image if you attached or linked one. The bot replies in the channel to confirm.
+A new day starts a new file.
+
+**4. Point an agent at it**
+
+The roadmap is readable over the same API the control panel uses:
+
+```
+GET http://<your-pc>:8787/api/roadmap/latest?token=<your access code>
+GET http://<your-pc>:8787/api/roadmap/<filename>?token=<your access code>
+GET http://<your-pc>:8787/api/roadmap?token=<your access code>   # lists files
+```
+
+Tell your agent (in its system prompt, project instructions, or however it
+takes standing context) to fetch that URL when asked to resume. Then set that
+agent's flock entry message to something like:
+
+```
+I am Sheepdog, bark bark. Resume the work with the following prompt - check
+which tasks are already completed and continue the work until the end of the
+roadmap is reached. If the end is reached, do nothing.
+```
+
+with fixed times matching when its usage limit refreshes. No code changes
+needed for this part — the message field is already free text.
+
+Note: the image link Discord gives an attachment expires after a while, so
+it's meant for an agent that checks in reasonably soon, not a permanent
+archive.
 
 ## Using it from your phone
 

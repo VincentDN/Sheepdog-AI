@@ -9,6 +9,8 @@ const configStore = require('./config');
 const log = require('./log');
 const hub = require('./hub');
 const { makeScheduler, describe } = require('./scheduler');
+const roadmap = require('./roadmap');
+const discordBot = require('./discordBot');
 
 let cfg = configStore.load();
 log.init();
@@ -171,6 +173,18 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    if (pathname === '/api/roadmap' && req.method === 'GET') {
+      return send(res, 200, { files: roadmap.listFiles(), latest: roadmap.latestFile() });
+    }
+
+    const roadmapMatch = pathname.match(/^\/api\/roadmap\/([^/]+)$/);
+    if (roadmapMatch && req.method === 'GET') {
+      const name = roadmapMatch[1] === 'latest' ? roadmap.latestFile() : roadmapMatch[1];
+      const content = name ? roadmap.readFile(name) : null;
+      if (content === null) return send(res, 404, { error: 'No such roadmap file' });
+      return send(res, 200, content, 'text/markdown; charset=utf-8');
+    }
+
     return send(res, 404, { error: 'Unknown endpoint' });
   } catch (err) {
     console.error(err);
@@ -284,6 +298,7 @@ server.listen(cfg.port, cfg.bind, () => {
   console.log('    ' + cfg.token);
   console.log('');
   scheduler.start();
+  discordBot.start(process.env.SHEEPDOG_DISCORD_TOKEN);
 });
 
 process.on('SIGINT', () => {
