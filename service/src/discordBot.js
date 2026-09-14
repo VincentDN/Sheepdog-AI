@@ -71,7 +71,7 @@ function start(token) {
       return;
     }
 
-    const entry = roadmap.addEntry({
+    const entry = await roadmap.addEntry({
       text,
       imageUrl,
       author: message.member?.displayName || message.author.username

@@ -29,6 +29,10 @@ const MIME = {
   '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
   '.ico': 'image/x-icon'
 };
 
@@ -175,6 +179,19 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === '/api/roadmap' && req.method === 'GET') {
       return send(res, 200, { files: roadmap.listFiles(), latest: roadmap.latestFile() });
+    }
+
+    const imageMatch = pathname.match(/^\/api\/roadmap\/images\/([^/]+)$/);
+    if (imageMatch && req.method === 'GET') {
+      const file = roadmap.imagePath(imageMatch[1]);
+      if (!file) return send(res, 404, { error: 'No such image' });
+      const type = MIME[path.extname(file).toLowerCase()] || 'application/octet-stream';
+      res.writeHead(200, {
+        'Content-Type': type,
+        'Cache-Control': 'no-store',
+        'Access-Control-Allow-Origin': '*'
+      });
+      return fs.createReadStream(file).pipe(res);
     }
 
     const roadmapMatch = pathname.match(/^\/api\/roadmap\/([^/]+)$/);

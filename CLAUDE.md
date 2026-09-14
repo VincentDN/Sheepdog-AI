@@ -24,21 +24,33 @@ the text), and `service/src/roadmap.js` appends the rest as a markdown checkbox
 line to that day's `Sheepdog-Roadmap-YYYY-MM-DD.md` under
 `<DATA_DIR>/roadmaps/`, creating the file with a heading on the day's first entry.
 
-Those files are exposed read-only over the existing HTTP API, behind the same
-access token as everything else: `GET /api/roadmap` lists filenames,
-`GET /api/roadmap/latest` and `GET /api/roadmap/<file>` return raw markdown. This
-is the "somewhere the agent can fetch" — a nudged agent that's been told to check
-that URL can read the current roadmap and see what's done.
+Those files (and their images) are exposed read-only over the existing HTTP
+API, behind the same access token as everything else: `GET /api/roadmap`
+lists filenames, `GET /api/roadmap/latest` / `.../<file>` return raw markdown,
+`GET /api/roadmap/images/<name>` returns image bytes. This is the "somewhere
+the agent can fetch" — a nudged agent that's been told to check that URL can
+read the current roadmap and see what's done.
 
 The nudge message itself needs no code changes to reference the roadmap — a
 flock member's `message` field is already free text, so pointing an agent at the
 roadmap is just a matter of writing that into the message (see README). Don't
 add a "roadmap mode" flag to flock members for this; it doesn't need one.
 
-Discord image attachment URLs carry a signed, expiring `ex=`/`is=`/`hm=` query
-string, so a roadmap entry's image link goes dead after a while. Fine for an
-agent checking in soon after; not a durable archive. Don't try to "fix" this by
-re-hosting images without being asked — it's a deliberate scope cut, not a bug.
+Discord's own attachment URLs carry a signed, expiring `ex=`/`is=`/`hm=` query
+string, so `roadmap.addEntry()` downloads the image itself (`saveImage()`) and
+writes it under `<ROADMAP_DIR>/images/`, referencing it from the markdown by a
+relative path instead of Discord's link. If the download fails for any reason,
+it falls back to the original (still-expiring) link rather than dropping the
+image reference — don't let that fallback path silently disappear if you touch
+this again.
+
+`ROADMAP_DIR` has its own override, `SHEEPDOG_ROADMAP_DIR`, independent of
+`SHEEPDOG_DATA` — deliberately, so the access token in `config.json` never has
+to sit in a folder a sync client (Dropbox, etc.) is watching just because the
+roadmap does. Multi-device support is entirely "point this env var at a synced
+folder"; there's no code path that talks to Dropbox, Cloudflare, or any other
+cloud API, and there doesn't need to be one — don't add a cloud storage
+integration here unless asked.
 
 There is no build pipeline anywhere. Edit a file, restart the service or reload the
 extension. Keep it that way.
