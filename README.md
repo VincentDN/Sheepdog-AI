@@ -1,3 +1,5 @@
+> **DEPRECATED (23 Nov 2026).** Sheepdog is now a Discord bot that ingests staged prompts from a specific chat channel and delivers them to a repo. Woof Woof! It lives in [`VincentDN/vdn-internal`, `tools/sheepdog/`](https://github.com/VincentDN/vdn-internal/tree/main/tools/sheepdog) once merged. This Windows nudge app is no longer maintained; do not build on it.
+
 # Sheepdog
 
 Sheepdog nudges your AI agents. It watches Claude and ChatGPT conversations you've
