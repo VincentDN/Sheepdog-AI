@@ -1,3 +1,7 @@
+# DEPRECATED
+
+This repo is deprecated (23 Nov 2026). Do not add features. The new Sheepdog (Discord channel to repo mirror) is `tools/sheepdog/` in `VincentDN/vdn-internal`. The notes below are history.
+
 # Notes for Claude Code
 
 ## What this is
